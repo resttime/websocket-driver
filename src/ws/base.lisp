@@ -181,7 +181,7 @@
      (emit :close ws :code code :reason reason))
     (:open
      (call-next-method))
-    (:closing
+    (:closed
      (emit :close ws :code code :reason reason))
     (otherwise nil)))
 
@@ -215,7 +215,9 @@
          (let ((read-bytes (handler-case (read-sequence buf stream)
                              (error ()
                                ;; Retry when I/O timeout error
-                               (go retry)))))
+                               (if (open-stream-p stream)
+                                   (go retry)
+                                   (return))))))
            (when (= read-bytes 0)
              (return nil))
 
